@@ -8,7 +8,7 @@ beforeEach(async () => await seed(testData));
 afterAll(async () => pool.end());
 
 describe("GET /api/categories", () => {
-  test("responds with an array and status 200", async () => {
+  test("status: 200, responds with an array", async () => {
     const { body } = await request(app).get("/api/categories").expect(200);
     expect(body).toEqual(expect.any(Array));
   });
