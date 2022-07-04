@@ -22,4 +22,11 @@ describe("GET /api/categories", () => {
       });
     });
   });
+
+  test("status: 404, responds with error message when the route does not exist", async () => {
+    const { body } = await request(app).get("/api/category");
+    expect(body.msg).toBe(
+      "404 Not Found: the route /api/category does not exist"
+    );
+  });
 });
