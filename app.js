@@ -12,7 +12,14 @@ app.use("*", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
+  if (err.status && err.msg) {
+    res.status(err.status).send({ msg: err.msg });
+  } else {
+    next(err);
+  }
+});
+
+app.use((err, req, res, next) => {
   res.status(500).send({ msg: "500 Internal Server Error" });
 });
 
