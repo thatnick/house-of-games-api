@@ -1,3 +1,4 @@
+const format = require("pg-format");
 const pool = require("../db/connection");
 
 exports.selectCategories = async () => {
@@ -30,6 +31,36 @@ exports.selectReviewById = async (review_id) => {
       return Promise.reject({
         status: 400,
         msg: `${review_id} is not a valid review id`,
+      });
+    }
+    return Promise.reject();
+  }
+};
+
+exports.updateReviewById = async (review_id, inc_votes) => {
+  try {
+    const {
+      rows: [review],
+    } = await pool.query(
+      `UPDATE reviews
+      SET votes = votes + $1
+      WHERE review_id = $2
+      RETURNING *
+      `,
+
+      [inc_votes, review_id]
+    );
+    return review
+      ? { review }
+      : Promise.reject({
+          status: 400,
+          msg: `There is no review with the id ${review_id} to update`,
+        });
+  } catch (err) {
+    if (err.code === "22P02") {
+      return Promise.reject({
+        status: 400,
+        msg: `${inc_votes} is not a valid number of votes`,
       });
     }
     return Promise.reject();

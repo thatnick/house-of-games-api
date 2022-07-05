@@ -70,3 +70,55 @@ describe("GET /api/reviews/:review_id", () => {
     });
   });
 });
+
+describe("PATCH /api/reviews/:review_id", () => {
+  test("status: 202, in/decrements votes column for the given review_id by the value of inc_votes, responds with updated review", async () => {
+    const { body } = await request(app)
+      .patch("/api/reviews/2")
+      .send({ inc_votes: -1 })
+      .expect(202);
+
+    expect(body.review).toEqual({
+      review_id: 2,
+      title: "Jenga",
+      designer: "Leslie Scott",
+      owner: "philippaclaire9",
+      review_img_url:
+        "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      review_body: "Fiddly fun for all the family",
+      category: "dexterity",
+      created_at: "2021-01-18T10:01:41.251Z",
+      votes: 4,
+    });
+  });
+
+  test("status: 400, responds with error if a review with the given id does not exist", async () => {
+    const { body } = await request(app)
+      .patch("/api/reviews/14")
+      .send({ inc_votes: 1 })
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "There is no review with the id 14 to update",
+    });
+  });
+
+  test("status: 400, responds with error if no body sent", async () => {
+    const { body } = await request(app).patch("/api/reviews/1").expect(400);
+
+    expect(body).toEqual({
+      msg: "Please provide inc_votes in the body of your request",
+    });
+  });
+
+  test("status: 400, responds with error if inc_votes is not a number", async () => {
+    const { body } = await request(app)
+      .patch("/api/reviews/2")
+      .send({ inc_votes: "some text" })
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "some text is not a valid number of votes",
+    });
+  });
+});
