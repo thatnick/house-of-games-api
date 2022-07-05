@@ -1,4 +1,3 @@
-const format = require("pg-format");
 const pool = require("../db/connection");
 
 exports.selectCategories = async () => {
@@ -47,13 +46,12 @@ exports.updateReviewById = async (review_id, inc_votes) => {
       WHERE review_id = $2
       RETURNING *
       `,
-
       [inc_votes, review_id]
     );
     return review
       ? { review }
       : Promise.reject({
-          status: 400,
+          status: 404,
           msg: `There is no review with the id ${review_id} to update`,
         });
   } catch (err) {

@@ -76,7 +76,7 @@ describe("PATCH /api/reviews/:review_id", () => {
     const { body } = await request(app)
       .patch("/api/reviews/2")
       .send({ inc_votes: -1 })
-      .expect(202);
+      .expect(200);
 
     expect(body.review).toEqual({
       review_id: 2,
@@ -92,11 +92,11 @@ describe("PATCH /api/reviews/:review_id", () => {
     });
   });
 
-  test("status: 400, responds with error if a review with the given id does not exist", async () => {
+  test("status: 404, responds with error if a review with the given id does not exist", async () => {
     const { body } = await request(app)
       .patch("/api/reviews/14")
       .send({ inc_votes: 1 })
-      .expect(400);
+      .expect(404);
 
     expect(body).toEqual({
       msg: "There is no review with the id 14 to update",

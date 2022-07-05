@@ -29,7 +29,7 @@ exports.patchReviewById = async (req, res, next) => {
         status: 400,
         msg: "Please provide inc_votes in the body of your request",
       });
-    res.status(202).send(await updateReviewById(review_id, inc_votes));
+    res.status(200).send(await updateReviewById(review_id, inc_votes));
   } catch (err) {
     next(err);
   }
