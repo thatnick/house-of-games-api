@@ -16,7 +16,9 @@ app.use("*", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err.status && err.msg) {
+  if (err.status && err.msg && err.type && err[err.type]) {
+    res.status(err.status).send({ [err.type]: err[err.type], msg: err.msg });
+  } else if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
   } else {
     next(err);

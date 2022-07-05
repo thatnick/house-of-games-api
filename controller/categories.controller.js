@@ -3,7 +3,7 @@ const {
   selectReviewById,
 } = require("../model/categories.model");
 
-exports.getCategories = async (req, res) => {
+exports.getCategories = async (req, res, next) => {
   try {
     res.send(await selectCategories());
   } catch (err) {
@@ -11,7 +11,7 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-exports.getReviewById = async (req, res) => {
+exports.getReviewById = async (req, res, next) => {
   try {
     res.send(await selectReviewById(req.params.review_id));
   } catch (err) {

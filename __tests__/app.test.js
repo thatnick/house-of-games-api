@@ -50,4 +50,23 @@ describe("GET /api/reviews/:review_id", () => {
       votes: 1,
     });
   });
+
+  test("status: 404, responds with error if a review with the given id does not exist", async () => {
+    const { body } = await request(app).get("/api/reviews/14").expect(404);
+
+    expect(body).toEqual({
+      review: {},
+      msg: "There is no review with the id 14",
+    });
+  });
+
+  test("status: 400, responds with error if a review_id is not a number", async () => {
+    const { body } = await request(app)
+      .get("/api/reviews/sometext")
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "sometext is not a valid review id",
+    });
+  });
 });
