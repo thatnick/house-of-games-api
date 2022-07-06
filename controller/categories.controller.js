@@ -1,5 +1,6 @@
 const {
   selectCategories,
+  selectReviews,
   selectReviewById,
   updateReviewById,
 } = require("../model/categories.model");
@@ -7,6 +8,14 @@ const {
 exports.getCategories = async (req, res, next) => {
   try {
     res.send(await selectCategories());
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getReviews = async (req, res, next) => {
+  try {
+    res.send(await selectReviews());
   } catch (err) {
     next(err);
   }

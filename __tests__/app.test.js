@@ -118,3 +118,29 @@ describe("PATCH /api/reviews/:review_id", () => {
     });
   });
 });
+
+describe("GET /api/reviews", () => {
+  test("status: 200, responds with an array of reviews, sorted by date descending", async () => {
+    const { body } = await request(app).get("/api/reviews").expect(200);
+
+    expect(body).toHaveLength(13);
+    expect(body).toBeSortedBy("created_at", {
+      descending: true,
+      compare: (a, b) => new Date(a) - new Date(b),
+    });
+    body.forEach((review) => {
+      expect(review).toEqual({
+        review_id: expect.any(Number),
+        owner: expect.any(String),
+        title: expect.any(String),
+        category: expect.any(String),
+        review_img_url: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        review_body: expect.any(String),
+        designer: expect.any(String),
+        comment_count: expect.any(String),
+      });
+    });
+  });
+});

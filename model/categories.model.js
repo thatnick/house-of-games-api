@@ -5,6 +5,19 @@ exports.selectCategories = async () => {
   return rows;
 };
 
+exports.selectReviews = async () => {
+  const { rows } = await pool.query(
+    `
+    SELECT reviews.*, COUNT(comments.review_id) AS comment_count
+    FROM reviews
+    LEFT JOIN comments ON reviews.review_id = comments.review_id
+    GROUP BY reviews.review_id
+    ORDER BY reviews.created_at DESC
+    `
+  );
+  return rows;
+};
+
 exports.selectReviewById = async (review_id) => {
   try {
     const { rows } = await pool.query(
