@@ -1,5 +1,6 @@
 const {
   selectCategories,
+  selectReviews,
   selectReviewById,
   updateReviewById,
   selectUsers,
@@ -8,6 +9,14 @@ const {
 exports.getCategories = async (req, res, next) => {
   try {
     res.send(await selectCategories());
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getReviews = async (req, res, next) => {
+  try {
+    res.send(await selectReviews());
   } catch (err) {
     next(err);
   }
