@@ -22,9 +22,11 @@ exports.selectReviewById = async (review_id) => {
   try {
     const { rows } = await pool.query(
       `
-      SELECT *
+      SELECT reviews.*, COUNT(comments.review_id) AS comment_count
       FROM reviews
-      WHERE review_id = $1
+      LEFT JOIN comments ON reviews.review_id = comments.review_id
+      WHERE reviews.review_id = $1
+      GROUP BY reviews.review_id
       `,
       [review_id]
     );
@@ -51,9 +53,16 @@ exports.selectReviewById = async (review_id) => {
 exports.updateReviewById = async (review_id, inc_votes) => {
   try {
     const { rows } = await pool.query(
-      `UPDATE reviews
-      SET votes = votes + $1
-      WHERE review_id = $2
+      `
+      UPDATE reviews
+      SET votes = reviews.votes + $1
+      FROM (
+        SELECT COUNT(comments.review_id) AS comment_count
+        FROM reviews
+        LEFT JOIN comments ON reviews.review_id = comments.review_id
+        WHERE reviews.review_id = $2
+      ) review
+      WHERE reviews.review_id = $2
       RETURNING *
       `,
       [inc_votes, review_id]
@@ -74,4 +83,9 @@ exports.updateReviewById = async (review_id, inc_votes) => {
     }
     return Promise.reject();
   }
+};
+
+exports.selectUsers = async () => {
+  const { rows } = await pool.query("SELECT * FROM users");
+  return rows;
 };

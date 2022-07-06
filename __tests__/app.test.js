@@ -29,6 +29,32 @@ describe("GET /api/categories", () => {
   });
 });
 
+describe("GET /api/reviews", () => {
+  test("status: 200, responds with an array of reviews, sorted by date descending", async () => {
+    const { body } = await request(app).get("/api/reviews").expect(200);
+
+    expect(body).toHaveLength(13);
+    expect(body).toBeSortedBy("created_at", {
+      descending: true,
+      compare: (a, b) => new Date(a) - new Date(b),
+    });
+    body.forEach((review) => {
+      expect(review).toEqual({
+        review_id: expect.any(Number),
+        owner: expect.any(String),
+        title: expect.any(String),
+        category: expect.any(String),
+        review_img_url: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        review_body: expect.any(String),
+        designer: expect.any(String),
+        comment_count: expect.any(String),
+      });
+    });
+  });
+});
+
 describe("GET /api/reviews/:review_id", () => {
   test("status: 200, responds with the review with the given id", async () => {
     const { body } = await request(app).get("/api/reviews/1").expect(200);
@@ -44,6 +70,7 @@ describe("GET /api/reviews/:review_id", () => {
       category: "euro game",
       created_at: "2021-01-18T10:00:20.514Z",
       votes: 1,
+      comment_count: "0",
     });
   });
 
@@ -85,6 +112,7 @@ describe("PATCH /api/reviews/:review_id", () => {
       category: "dexterity",
       created_at: "2021-01-18T10:01:41.251Z",
       votes: 4,
+      comment_count: "3",
     });
   });
 
@@ -119,27 +147,15 @@ describe("PATCH /api/reviews/:review_id", () => {
   });
 });
 
-describe("GET /api/reviews", () => {
-  test("status: 200, responds with an array of reviews, sorted by date descending", async () => {
-    const { body } = await request(app).get("/api/reviews").expect(200);
-
-    expect(body).toHaveLength(13);
-    expect(body).toBeSortedBy("created_at", {
-      descending: true,
-      compare: (a, b) => new Date(a) - new Date(b),
-    });
-    body.forEach((review) => {
-      expect(review).toEqual({
-        review_id: expect.any(Number),
-        owner: expect.any(String),
-        title: expect.any(String),
-        category: expect.any(String),
-        review_img_url: expect.any(String),
-        created_at: expect.any(String),
-        votes: expect.any(Number),
-        review_body: expect.any(String),
-        designer: expect.any(String),
-        comment_count: expect.any(String),
+describe("GET /api/users", () => {
+  test("status: 200, responds with an array of users", async () => {
+    const { body } = await request(app).get("/api/users").expect(200);
+    expect(body).toHaveLength(4);
+    body.forEach((user) => {
+      expect(user).toEqual({
+        username: expect.any(String),
+        name: expect.any(String),
+        avatar_url: expect.any(String),
       });
     });
   });
