@@ -62,3 +62,8 @@ exports.updateReviewById = async (review_id, inc_votes) => {
     return Promise.reject();
   }
 };
+
+exports.selectUsers = async () => {
+  const { rows } = await pool.query("SELECT * FROM users");
+  return rows;
+};
