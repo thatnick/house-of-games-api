@@ -2,12 +2,17 @@ const express = require("express");
 const {
   getCategories,
   getReviewById,
+  patchReviewById,
 } = require("./controller/categories.controller");
 
 const app = express();
 
+app.use(express.json());
+
 app.get("/api/categories", getCategories);
 app.get("/api/reviews/:review_id", getReviewById);
+
+app.patch("/api/reviews/:review_id", patchReviewById);
 
 app.use("*", (req, res) => {
   res
@@ -26,6 +31,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log(err);
   res.status(500).send({ msg: "500 Internal Server Error" });
 });
 
