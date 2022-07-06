@@ -17,13 +17,9 @@ describe("ALL /*", () => {
 });
 
 describe("GET /api/categories", () => {
-  test("status: 200, responds with an array", async () => {
+  test("status: 200, responds with an array of categories with slug and description props", async () => {
     const { body } = await request(app).get("/api/categories").expect(200);
-    expect(body).toEqual(expect.any(Array));
-  });
-
-  test("response array contains categories with slug and description", async () => {
-    const { body } = await request(app).get("/api/categories");
+    expect(body).toHaveLength(4);
     body.forEach((category) => {
       expect(category).toEqual({
         slug: expect.any(String),
