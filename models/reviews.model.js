@@ -1,9 +1,5 @@
 const pool = require("../db/connection");
-
-exports.selectCategories = async () => {
-  const { rows } = await pool.query("SELECT * FROM categories");
-  return rows;
-};
+const { resourceError, dbError } = require("./errors/model-errors");
 
 exports.selectReviews = async () => {
   const { rows } = await pool.query(
@@ -33,20 +29,9 @@ exports.selectReviewById = async (review_id) => {
 
     const [review] = rows;
     if (review) return { review };
-    return Promise.reject({
-      status: 404,
-      msg: `There is no review with the id ${review_id}`,
-      type: "review",
-      review: {},
-    });
+    return resourceError(review_id, "review");
   } catch (err) {
-    if (err.code === "22P02") {
-      return Promise.reject({
-        status: 400,
-        msg: `${review_id} is not a valid review id`,
-      });
-    }
-    return Promise.reject();
+    return dbError(err, `${review_id} is not a valid review id`);
   }
 };
 
@@ -70,22 +55,8 @@ exports.updateReviewById = async (review_id, inc_votes) => {
 
     const [review] = rows;
     if (review) return { review };
-    return Promise.reject({
-      status: 404,
-      msg: `There is no review with the id ${review_id} to update`,
-    });
+    return resourceError(review_id, "review");
   } catch (err) {
-    if (err.code === "22P02") {
-      return Promise.reject({
-        status: 400,
-        msg: `${inc_votes} is not a valid number of votes`,
-      });
-    }
-    return Promise.reject();
+    return dbError(err, `${inc_votes} is not a valid number of votes`);
   }
-};
-
-exports.selectUsers = async () => {
-  const { rows } = await pool.query("SELECT * FROM users");
-  return rows;
 };
