@@ -78,7 +78,6 @@ describe("GET /api/reviews/:review_id", () => {
     const { body } = await request(app).get("/api/reviews/14").expect(404);
 
     expect(body).toEqual({
-      review: {},
       msg: "There is no review with the id 14",
     });
   });
@@ -123,7 +122,7 @@ describe("PATCH /api/reviews/:review_id", () => {
       .expect(404);
 
     expect(body).toEqual({
-      msg: "There is no review with the id 14 to update",
+      msg: "There is no review with the id 14",
     });
   });
 
@@ -157,6 +156,54 @@ describe("GET /api/users", () => {
         name: expect.any(String),
         avatar_url: expect.any(String),
       });
+    });
+  });
+});
+
+describe("GET /api/reviews/:review_id/comments", () => {
+  test("status: 200, responds with an array of comments for the given review_id", async () => {
+    const { body: comments } = await request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200);
+
+    expect(comments).toHaveLength(3);
+    comments.forEach((comment) => {
+      expect(comment).toEqual({
+        comment_id: expect.any(Number),
+        votes: expect.any(Number),
+        created_at: expect.any(String),
+        author: expect.any(String),
+        body: expect.any(String),
+        review_id: expect.any(Number),
+      });
+    });
+  });
+
+  test("status: 200, responds with an empty array if the given review_id has no comments", async () => {
+    const { body: comments } = await request(app)
+      .get("/api/reviews/1/comments")
+      .expect(200);
+
+    expect(comments).toHaveLength(0);
+  });
+
+  test("status: 404, responds with error if a review with the given id does not exist", async () => {
+    const { body: error } = await request(app)
+      .get("/api/reviews/99/comments")
+      .expect(404);
+
+    expect(error).toEqual({
+      msg: "There is no review with the id 99",
+    });
+  });
+
+  test("status: 400, responds with error if a review_id is not a number", async () => {
+    const { body: error } = await request(app)
+      .get("/api/reviews/sometext/comments")
+      .expect(400);
+
+    expect(error).toEqual({
+      msg: "sometext is not a valid review id",
     });
   });
 });
