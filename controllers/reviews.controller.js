@@ -1,19 +1,8 @@
 const {
-  selectCategories,
   selectReviews,
   selectReviewById,
   updateReviewById,
-  selectCommentsByReviewId,
-  selectUsers,
-} = require("../model/categories.model");
-
-exports.getCategories = async (req, res, next) => {
-  try {
-    res.send(await selectCategories());
-  } catch (err) {
-    next(err);
-  }
-};
+} = require("../models/reviews.model");
 
 exports.getReviews = async (req, res, next) => {
   try {
@@ -41,22 +30,6 @@ exports.patchReviewById = async (req, res, next) => {
         msg: "Please provide inc_votes in the body of your request",
       });
     res.status(200).send(await updateReviewById(review_id, inc_votes));
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.getCommentsByReviewId = async (req, res, next) => {
-  try {
-    res.send(await selectCommentsByReviewId(req.params.review_id));
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.getUsers = async (req, res, next) => {
-  try {
-    res.send(await selectUsers());
   } catch (err) {
     next(err);
   }
