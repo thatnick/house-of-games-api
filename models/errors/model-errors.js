@@ -1,11 +1,11 @@
-resourceError = (resource, property, value) => {
+const resourceError = (resource, property, value) => {
   return Promise.reject({
     status: 404,
     msg: `There is no ${resource} with the ${property} ${value}`,
   });
 };
 
-dbError = (err, resource, property, value) => {
+const dbError = (err, resource, property, value) => {
   if (err.code === "22P02") {
     return Promise.reject({
       status: 400,
