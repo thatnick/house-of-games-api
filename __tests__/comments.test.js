@@ -40,7 +40,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
       .expect(404);
 
     expect(error).toEqual({
-      msg: "There is no review with the id 99",
+      msg: "There is no review with the review_id 99",
     });
   });
 
@@ -50,7 +50,79 @@ describe("GET /api/reviews/:review_id/comments", () => {
       .expect(400);
 
     expect(error).toEqual({
-      msg: "sometext is not a valid review id",
+      msg: "sometext is not a valid review_id",
+    });
+  });
+});
+
+describe("POST /api/reviews/:review_id/comments", () => {
+  test("status: 201, adds the comment to the db and responds with the added comment", async () => {
+    const { body } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "mallionaire", body: "I am a comment" })
+      .expect(201);
+
+    expect(body.comment).toEqual({
+      comment_id: 7,
+      votes: 0,
+      created_at: expect.any(String),
+      author: "mallionaire",
+      body: "I am a comment",
+      review_id: 2,
+    });
+  });
+
+  test("status: 404, responds with error if a review with the given id does not exist", async () => {
+    const { body } = await request(app)
+      .post("/api/reviews/14/comments")
+      .send({ username: "mallionaire", body: "I am a comment" })
+      .expect(404);
+
+    expect(body).toEqual({
+      msg: "There is no review with the review_id 14",
+    });
+  });
+
+  test("status: 400, responds with error if no body sent", async () => {
+    const { body } = await request(app)
+      .post("/api/reviews/1/comments")
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "Please provide username and body properties in the body of your request",
+    });
+  });
+
+  test("status: 400, responds with error if body is not a string", async () => {
+    const { body } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "mallionaire", body: 99 })
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "99 is not a valid comment body",
+    });
+  });
+
+  test("status: 400, responds with error if username is not a string", async () => {
+    const { body } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: 88, body: "I am a comment" })
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "88 is not a valid username",
+    });
+  });
+
+  test("status: 400, responds with error if username does not exist", async () => {
+    const { body } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "idontexist", body: "I am a comment" })
+      .expect(404);
+
+    expect(body).toEqual({
+      msg: "There is no user with the username idontexist",
     });
   });
 });

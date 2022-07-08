@@ -29,9 +29,9 @@ exports.selectReviewById = async (review_id) => {
 
     const [review] = rows;
     if (review) return { review };
-    return resourceError(review_id, "review");
+    return resourceError("review", "review_id", review_id);
   } catch (err) {
-    return dbError(err, `${review_id} is not a valid review id`);
+    return dbError(err, "review", "review_id", review_id);
   }
 };
 
@@ -55,8 +55,8 @@ exports.updateReviewById = async (review_id, inc_votes) => {
 
     const [review] = rows;
     if (review) return { review };
-    return resourceError(review_id, "review");
+    return resourceError("review", "review_id", review_id);
   } catch (err) {
-    return dbError(err, `${inc_votes} is not a valid number of votes`);
+    return dbError(err, "review", "number of votes", inc_votes);
   }
 };
