@@ -1,6 +1,7 @@
 const {
   selectCommentsByReviewId,
   insertCommentByReviewId,
+  deleteCommentById,
 } = require("../models/comments.model");
 
 exports.getCommentsByReviewId = async (req, res, next) => {
@@ -34,6 +35,23 @@ exports.postCommentByReviewId = async (req, res, next) => {
       res
         .status(201)
         .send(await insertCommentByReviewId(review_id, username, body));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteCommentById = async (req, res, next) => {
+  try {
+    const { comment_id } = req.params;
+    if (isNaN(comment_id)) {
+      next({
+        status: 400,
+        msg: `${comment_id} is not a valid comment_id`,
+      });
+    } else {
+      await deleteCommentById(comment_id);
+      res.status(204).send();
     }
   } catch (err) {
     next(err);
