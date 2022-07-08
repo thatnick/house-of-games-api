@@ -92,6 +92,47 @@ describe("GET /api/reviews", () => {
       });
     });
   });
+  // ERRORS
+  // - `category` that exists but does not have any reviews associated with it
+  test("status: 400, responds with an error if sort_by column does not exist", async () => {
+    const { body } = await request(app)
+      .get("/api/reviews")
+      .query({ sort_by: "bananas" })
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "There is no property bananas on review",
+    });
+  });
+
+  test("status: 400, responds with an error if order is not asc or desc", async () => {
+    const { body } = await request(app)
+      .get("/api/reviews")
+      .query({ order: "sideways" })
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "sideways is not a valid sort order",
+    });
+  });
+
+  test("status: 200, responds with an empty array if filter category does not exist", async () => {
+    const { body } = await request(app)
+      .get("/api/reviews")
+      .query({ category: "boring" })
+      .expect(200);
+
+    expect(body).toHaveLength(0);
+  });
+
+  test("status: 200, responds with an empty array if the category exists but has no associated reviews", async () => {
+    const { body } = await request(app)
+      .get("/api/reviews")
+      .query({ category: "children's games" })
+      .expect(200);
+
+    expect(body).toHaveLength(0);
+  });
 });
 
 describe("GET /api/reviews/:review_id", () => {

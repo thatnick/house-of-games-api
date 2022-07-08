@@ -7,29 +7,33 @@ exports.selectReviews = async (
   order = "desc",
   category
 ) => {
-  const table = "reviews";
-  let whereClause;
-  if (category) {
-    whereClause = format("WHERE reviews.category = %L", category);
+  try {
+    const table = "reviews";
+    let whereClause;
+    if (category) {
+      whereClause = format("WHERE reviews.category = %L", category);
+    }
+
+    const reviewsQuery = format(
+      `
+      SELECT reviews.*, COUNT(comments.review_id) AS comment_count
+      FROM reviews
+      LEFT JOIN comments ON reviews.review_id = comments.review_id
+      %s
+      GROUP BY reviews.review_id
+      ORDER BY %I.%I %s
+      `,
+      whereClause,
+      table,
+      sort_by,
+      order
+    );
+
+    const { rows } = await pool.query(reviewsQuery);
+    return rows;
+  } catch (err) {
+    return dbError(err, "review", sort_by);
   }
-
-  const reviewsQuery = format(
-    `
-    SELECT reviews.*, COUNT(comments.review_id) AS comment_count
-    FROM reviews
-    LEFT JOIN comments ON reviews.review_id = comments.review_id
-    %s
-    GROUP BY reviews.review_id
-    ORDER BY %I.%I %s
-    `,
-    whereClause,
-    table,
-    sort_by,
-    order
-  );
-
-  const { rows } = await pool.query(reviewsQuery);
-  return rows;
 };
 
 exports.selectReviewById = async (review_id) => {

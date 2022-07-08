@@ -6,8 +6,19 @@ const {
 
 exports.getReviews = async (req, res, next) => {
   try {
-    const { sort_by, order, category } = req.query;
-    res.send(await selectReviews(sort_by, order, category));
+    let { sort_by, order, category } = req.query;
+    if (
+      order &&
+      order.toUpperCase() !== "ASC" &&
+      order.toUpperCase() !== "DESC"
+    ) {
+      next({
+        status: 400,
+        msg: `${order} is not a valid sort order`,
+      });
+    } else {
+      res.send(await selectReviews(sort_by, order, category));
+    }
   } catch (err) {
     next(err);
   }
