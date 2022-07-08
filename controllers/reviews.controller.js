@@ -6,7 +6,8 @@ const {
 
 exports.getReviews = async (req, res, next) => {
   try {
-    let { sort_by, order, category } = req.query;
+    const { sort_by, category } = req.query;
+    let { order } = req.query;
     if (
       order &&
       order.toUpperCase() !== "ASC" &&
