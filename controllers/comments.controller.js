@@ -45,13 +45,13 @@ exports.deleteCommentById = async (req, res, next) => {
   try {
     const { comment_id } = req.params;
     if (isNaN(comment_id)) {
-      console.log("HERE");
       next({
         status: 400,
         msg: `${comment_id} is not a valid comment_id`,
       });
     } else {
-      res.status(204).send(await deleteCommentById(comment_id));
+      await deleteCommentById(comment_id);
+      res.status(204).send();
     }
   } catch (err) {
     next(err);
