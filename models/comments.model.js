@@ -55,3 +55,21 @@ exports.insertCommentByReviewId = async (review_id, username, body) => {
     }
   }
 };
+
+exports.deleteCommentById = async (comment_id) => {
+  try {
+    const { rows } = await pool.query(
+      `
+      DELETE FROM comments
+      WHERE comment_id = $1
+      RETURNING *
+      `,
+      [comment_id]
+    );
+    if (rows.length <= 0) {
+      return resourceError("comment", "comment_id", comment_id);
+    }
+  } catch (err) {
+    return dbError(err);
+  }
+};

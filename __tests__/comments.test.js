@@ -126,3 +126,28 @@ describe("POST /api/reviews/:review_id/comments", () => {
     });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("status: 204, deletes the comment with the given id", async () => {
+    const { body } = await request(app).delete("/api/comments/1").expect(204);
+    expect(body).toEqual({});
+  });
+
+  test("status: 404, responds with an error if no comment with the given id exists", async () => {
+    const { body } = await request(app).delete("/api/comments/99").expect(404);
+
+    expect(body).toEqual({
+      msg: "There is no comment with the comment_id 99",
+    });
+  });
+
+  test("status: 400, responds with error if comment_id is not a number", async () => {
+    const { body } = await request(app)
+      .delete("/api/comments/iamastring")
+      .expect(400);
+
+    expect(body).toEqual({
+      msg: "iamastring is not a valid comment_id",
+    });
+  });
+});
