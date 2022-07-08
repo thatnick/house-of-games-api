@@ -15,7 +15,7 @@ exports.selectCommentsByReviewId = async (review_id) => {
       `,
       [review_id]
     );
-    if (!review.exists) return resourceError(review_id, "review");
+    if (!review.exists) return resourceError("review", "review_id", review_id);
 
     const { rows } = await pool.query(
       `
@@ -26,6 +26,32 @@ exports.selectCommentsByReviewId = async (review_id) => {
     );
     return rows;
   } catch (err) {
-    return dbError(err, `${review_id} is not a valid review id`);
+    return dbError(err, "review", "review_id", review_id);
+  }
+};
+
+exports.insertCommentByReviewId = async (review_id, username, body) => {
+  try {
+    const { rows } = await pool.query(
+      `
+      INSERT INTO comments
+      (review_id, author, body)
+      VALUES
+      ($1, $2, $3)
+      RETURNING *
+      `,
+      [review_id, username, body]
+    );
+
+    const [comment] = rows;
+    if (comment) return { comment };
+  } catch (err) {
+    if (err.detail.includes("users")) {
+      return dbError(err, "user", "username", username);
+    } else if (err.detail.includes("reviews")) {
+      return dbError(err, "review", "review_id", review_id);
+    } else {
+      return dbError(err);
+    }
   }
 };

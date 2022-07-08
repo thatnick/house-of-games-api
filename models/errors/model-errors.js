@@ -1,16 +1,20 @@
-exports.resourceError = (id, type) => {
+resourceError = (resource, property, value) => {
   return Promise.reject({
     status: 404,
-    msg: `There is no ${type} with the id ${id}`,
+    msg: `There is no ${resource} with the ${property} ${value}`,
   });
 };
 
-exports.dbError = (err, msg) => {
+dbError = (err, resource, property, value) => {
   if (err.code === "22P02") {
     return Promise.reject({
       status: 400,
-      msg,
+      msg: `${value} is not a valid ${property}`,
     });
+  } else if (err.code === "23503") {
+    return resourceError(resource, property, value);
   }
   return Promise.reject();
 };
+
+module.exports = { resourceError, dbError };

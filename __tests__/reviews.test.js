@@ -56,7 +56,7 @@ describe("GET /api/reviews/:review_id", () => {
     const { body } = await request(app).get("/api/reviews/14").expect(404);
 
     expect(body).toEqual({
-      msg: "There is no review with the id 14",
+      msg: "There is no review with the review_id 14",
     });
   });
 
@@ -66,7 +66,7 @@ describe("GET /api/reviews/:review_id", () => {
       .expect(400);
 
     expect(body).toEqual({
-      msg: "sometext is not a valid review id",
+      msg: "sometext is not a valid review_id",
     });
   });
 });
@@ -100,7 +100,7 @@ describe("PATCH /api/reviews/:review_id", () => {
       .expect(404);
 
     expect(body).toEqual({
-      msg: "There is no review with the id 14",
+      msg: "There is no review with the review_id 14",
     });
   });
 
