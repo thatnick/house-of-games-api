@@ -11,6 +11,11 @@ const dbError = (err, resource, property, value) => {
       status: 400,
       msg: `${value} is not a valid ${property}`,
     });
+  } else if (err.code === "42703") {
+    return Promise.reject({
+      status: 400,
+      msg: `There is no property ${property} on ${resource}`,
+    });
   } else if (err.code === "23503") {
     return resourceError(resource, property, value);
   }
