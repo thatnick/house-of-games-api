@@ -1,16 +1,34 @@
 const pool = require("../db/connection");
+const format = require("pg-format");
 const { resourceError, dbError } = require("./errors/model-errors");
 
-exports.selectReviews = async () => {
-  const { rows } = await pool.query(
+exports.selectReviews = async (
+  sort_by = "created_at",
+  order = "desc",
+  category
+) => {
+  const table = "reviews";
+  let whereClause;
+  if (category) {
+    whereClause = format("WHERE reviews.category = %L", category);
+  }
+
+  const reviewsQuery = format(
     `
     SELECT reviews.*, COUNT(comments.review_id) AS comment_count
     FROM reviews
     LEFT JOIN comments ON reviews.review_id = comments.review_id
+    %s
     GROUP BY reviews.review_id
-    ORDER BY reviews.created_at DESC
-    `
+    ORDER BY %I.%I %s
+    `,
+    whereClause,
+    table,
+    sort_by,
+    order
   );
+
+  const { rows } = await pool.query(reviewsQuery);
   return rows;
 };
 

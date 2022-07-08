@@ -31,6 +31,67 @@ describe("GET /api/reviews", () => {
       });
     });
   });
+
+  describe("queries", () => {
+    test("status: 200, responds with an array of reviews sorted by votes descending", async () => {
+      const { body } = await request(app)
+        .get("/api/reviews")
+        .query({ sort_by: "votes" })
+        .expect(200);
+
+      expect(body).toHaveLength(13);
+      expect(body).toBeSortedBy("votes", {
+        descending: true,
+        compare: (a, b) => new Date(a) - new Date(b),
+      });
+    });
+
+    test("status: 200, responds with an array of reviews sorted by date ascending", async () => {
+      const { body } = await request(app)
+        .get("/api/reviews")
+        .query({ order: "asc" })
+        .expect(200);
+
+      expect(body).toHaveLength(13);
+      expect(body).toBeSortedBy("created_at", {
+        descending: false,
+        compare: (a, b) => new Date(a) - new Date(b),
+      });
+    });
+
+    test("status: 200, responds with an array of reviews filtered by category 'dexterity', sorted by date descending", async () => {
+      const { body } = await request(app)
+        .get("/api/reviews")
+        .query({ category: "social deduction" })
+        .expect(200);
+
+      expect(body).toHaveLength(11);
+      expect(body).toBeSortedBy("created_at", {
+        descending: true,
+        compare: (a, b) => new Date(a) - new Date(b),
+      });
+      body.forEach((review) => {
+        expect(review).toEqual(
+          expect.objectContaining({
+            category: "social deduction",
+          })
+        );
+      });
+    });
+
+    test("status: 200, accepts multiple queries, responds with an appropriate array of reviews ", async () => {
+      const { body } = await request(app)
+        .get("/api/reviews")
+        .query({ sort_by: "votes", order: "asc", category: "social deduction" })
+        .expect(200);
+
+      expect(body).toHaveLength(11);
+      expect(body).toBeSortedBy("votes", {
+        descending: false,
+        compare: (a, b) => new Date(a) - new Date(b),
+      });
+    });
+  });
 });
 
 describe("GET /api/reviews/:review_id", () => {
