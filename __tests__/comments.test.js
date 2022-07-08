@@ -57,7 +57,6 @@ describe("GET /api/reviews/:review_id/comments", () => {
 
 describe("POST /api/reviews/:review_id/comments", () => {
   test("status: 201, adds the comment to the db and responds with the added comment", async () => {
-    const testStart = new Date();
     const { body } = await request(app)
       .post("/api/reviews/2/comments")
       .send({ username: "mallionaire", body: "I am a comment" })
@@ -71,7 +70,6 @@ describe("POST /api/reviews/:review_id/comments", () => {
       body: "I am a comment",
       review_id: 2,
     });
-    expect(new Date(body.comment.created_at) > testStart).toBe(true);
   });
 
   test("status: 404, responds with error if a review with the given id does not exist", async () => {
