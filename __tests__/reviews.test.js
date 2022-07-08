@@ -92,8 +92,7 @@ describe("GET /api/reviews", () => {
       });
     });
   });
-  // ERRORS
-  // - `category` that exists but does not have any reviews associated with it
+
   test("status: 400, responds with an error if sort_by column does not exist", async () => {
     const { body } = await request(app)
       .get("/api/reviews")
