@@ -30,7 +30,7 @@ exports.selectReviews = async (
     );
 
     const { rows } = await pool.query(reviewsQuery);
-    return rows;
+    return { reviews: rows };
   } catch (err) {
     return dbError(err, "review", sort_by);
   }

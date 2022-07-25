@@ -9,14 +9,16 @@ afterAll(async () => pool.end());
 
 describe("GET /api/reviews", () => {
   test("status: 200, responds with an array of reviews, sorted by date descending", async () => {
-    const { body } = await request(app).get("/api/reviews").expect(200);
+    const {
+      body: { reviews },
+    } = await request(app).get("/api/reviews").expect(200);
 
-    expect(body).toHaveLength(13);
-    expect(body).toBeSortedBy("created_at", {
+    expect(reviews).toHaveLength(13);
+    expect(reviews).toBeSortedBy("created_at", {
       descending: true,
       compare: (a, b) => new Date(a) - new Date(b),
     });
-    body.forEach((review) => {
+    reviews.forEach((review) => {
       expect(review).toEqual({
         review_id: expect.any(Number),
         owner: expect.any(String),
@@ -34,43 +36,49 @@ describe("GET /api/reviews", () => {
 
   describe("queries", () => {
     test("status: 200, responds with an array of reviews sorted by votes descending", async () => {
-      const { body } = await request(app)
+      const {
+        body: { reviews },
+      } = await request(app)
         .get("/api/reviews")
         .query({ sort_by: "votes" })
         .expect(200);
 
-      expect(body).toHaveLength(13);
-      expect(body).toBeSortedBy("votes", {
+      expect(reviews).toHaveLength(13);
+      expect(reviews).toBeSortedBy("votes", {
         descending: true,
         compare: (a, b) => new Date(a) - new Date(b),
       });
     });
 
     test("status: 200, responds with an array of reviews sorted by date ascending", async () => {
-      const { body } = await request(app)
+      const {
+        body: { reviews },
+      } = await request(app)
         .get("/api/reviews")
         .query({ order: "asc" })
         .expect(200);
 
-      expect(body).toHaveLength(13);
-      expect(body).toBeSortedBy("created_at", {
+      expect(reviews).toHaveLength(13);
+      expect(reviews).toBeSortedBy("created_at", {
         descending: false,
         compare: (a, b) => new Date(a) - new Date(b),
       });
     });
 
     test("status: 200, responds with an array of reviews filtered by category 'dexterity', sorted by date descending", async () => {
-      const { body } = await request(app)
+      const {
+        body: { reviews },
+      } = await request(app)
         .get("/api/reviews")
         .query({ category: "social deduction" })
         .expect(200);
 
-      expect(body).toHaveLength(11);
-      expect(body).toBeSortedBy("created_at", {
+      expect(reviews).toHaveLength(11);
+      expect(reviews).toBeSortedBy("created_at", {
         descending: true,
         compare: (a, b) => new Date(a) - new Date(b),
       });
-      body.forEach((review) => {
+      reviews.forEach((review) => {
         expect(review).toEqual(
           expect.objectContaining({
             category: "social deduction",
@@ -80,13 +88,15 @@ describe("GET /api/reviews", () => {
     });
 
     test("status: 200, accepts multiple queries, responds with an appropriate array of reviews ", async () => {
-      const { body } = await request(app)
+      const {
+        body: { reviews },
+      } = await request(app)
         .get("/api/reviews")
         .query({ sort_by: "votes", order: "asc", category: "social deduction" })
         .expect(200);
 
-      expect(body).toHaveLength(11);
-      expect(body).toBeSortedBy("votes", {
+      expect(reviews).toHaveLength(11);
+      expect(reviews).toBeSortedBy("votes", {
         descending: false,
         compare: (a, b) => new Date(a) - new Date(b),
       });
@@ -116,21 +126,25 @@ describe("GET /api/reviews", () => {
   });
 
   test("status: 200, responds with an empty array if filter category does not exist", async () => {
-    const { body } = await request(app)
+    const {
+      body: { reviews },
+    } = await request(app)
       .get("/api/reviews")
       .query({ category: "boring" })
       .expect(200);
 
-    expect(body).toHaveLength(0);
+    expect(reviews).toHaveLength(0);
   });
 
   test("status: 200, responds with an empty array if the category exists but has no associated reviews", async () => {
-    const { body } = await request(app)
+    const {
+      body: { reviews },
+    } = await request(app)
       .get("/api/reviews")
       .query({ category: "children's games" })
       .expect(200);
 
-    expect(body).toHaveLength(0);
+    expect(reviews).toHaveLength(0);
   });
 });
 
