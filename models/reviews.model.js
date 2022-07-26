@@ -29,8 +29,8 @@ exports.selectReviews = async (
       order
     );
 
-    const { rows } = await pool.query(reviewsQuery);
-    return { reviews: rows };
+    const { rows: reviews } = await pool.query(reviewsQuery);
+    return { reviews };
   } catch (err) {
     return dbError(err, "review", sort_by);
   }
