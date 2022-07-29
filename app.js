@@ -11,6 +11,7 @@ const {
   getCommentsByReviewId,
   postCommentByReviewId,
   deleteCommentById,
+  getVotesByReviewIdAndUsername,
 } = require("./controllers/comments.controller");
 const { getUsers } = require("./controllers/users.controller");
 
@@ -24,6 +25,7 @@ app.get("/api/categories", getCategories);
 app.get("/api/reviews", getReviews);
 app.get("/api/reviews/:review_id", getReviewById);
 
+app.post("/api/reviews/:review_id/:username", getVotesByReviewIdAndUsername);
 app.post("/api/reviews/:review_id/votes", postVotesByReviewId);
 
 app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);
