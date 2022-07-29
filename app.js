@@ -6,12 +6,12 @@ const {
   getReviews,
   getReviewById,
   postVotesByReviewId,
+  getVotesByReviewIdAndUsername,
 } = require("./controllers/reviews.controller");
 const {
   getCommentsByReviewId,
   postCommentByReviewId,
   deleteCommentById,
-  getVotesByReviewIdAndUsername,
 } = require("./controllers/comments.controller");
 const { getUsers } = require("./controllers/users.controller");
 
