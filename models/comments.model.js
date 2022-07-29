@@ -17,14 +17,14 @@ exports.selectCommentsByReviewId = async (review_id) => {
     );
     if (!review.exists) return resourceError("review", "review_id", review_id);
 
-    const { rows } = await pool.query(
+    const { rows: comments } = await pool.query(
       `
       SELECT * FROM comments
       WHERE review_id = $1
       `,
       [review_id]
     );
-    return rows;
+    return { comments };
   } catch (err) {
     return dbError(err, "review", "review_id", review_id);
   }

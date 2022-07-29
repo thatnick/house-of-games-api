@@ -9,9 +9,9 @@ afterAll(async () => pool.end());
 
 describe("GET /api/reviews/:review_id/comments", () => {
   test("status: 200, responds with an array of comments for the given review_id", async () => {
-    const { body: comments } = await request(app)
-      .get("/api/reviews/2/comments")
-      .expect(200);
+    const {
+      body: { comments },
+    } = await request(app).get("/api/reviews/2/comments").expect(200);
 
     expect(comments).toHaveLength(3);
     comments.forEach((comment) => {
@@ -27,9 +27,9 @@ describe("GET /api/reviews/:review_id/comments", () => {
   });
 
   test("status: 200, responds with an empty array if the given review_id has no comments", async () => {
-    const { body: comments } = await request(app)
-      .get("/api/reviews/1/comments")
-      .expect(200);
+    const {
+      body: { comments },
+    } = await request(app).get("/api/reviews/1/comments").expect(200);
 
     expect(comments).toHaveLength(0);
   });
@@ -57,12 +57,14 @@ describe("GET /api/reviews/:review_id/comments", () => {
 
 describe("POST /api/reviews/:review_id/comments", () => {
   test("status: 201, adds the comment to the db and responds with the added comment", async () => {
-    const { body } = await request(app)
+    const {
+      body: { comment },
+    } = await request(app)
       .post("/api/reviews/2/comments")
       .send({ username: "mallionaire", body: "I am a comment" })
       .expect(201);
 
-    expect(body.comment).toEqual({
+    expect(comment).toEqual({
       comment_id: 7,
       votes: 0,
       created_at: expect.any(String),
