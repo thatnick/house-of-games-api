@@ -58,10 +58,8 @@ exports.postVotesByReviewId = async (req, res, next) => {
   }
 };
 
-exports.getVotesByReviewIdAndUsername = async (req, res, next) => {
+exports.getVotesByReviewIdAndUsername = async (req, res) => {
   const { review_id, username } = req.params;
 
-  res.send(
-    await selectVotesByReviewIdAndUsername(username, review_id, inc_votes)
-  );
+  res.send(await selectVotesByReviewIdAndUsername(username, review_id));
 };
