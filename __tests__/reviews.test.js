@@ -26,7 +26,7 @@ describe("GET /api/reviews", () => {
         category: expect.any(String),
         review_img_url: expect.any(String),
         created_at: expect.any(String),
-        votes: expect.any(Number),
+        vote_count: expect.any(String),
         review_body: expect.any(String),
         designer: expect.any(String),
         comment_count: expect.any(String),
@@ -40,11 +40,11 @@ describe("GET /api/reviews", () => {
         body: { reviews },
       } = await request(app)
         .get("/api/reviews")
-        .query({ sort_by: "votes" })
+        .query({ sort_by: "vote_count" })
         .expect(200);
 
       expect(reviews).toHaveLength(13);
-      expect(reviews).toBeSortedBy("votes", {
+      expect(reviews).toBeSortedBy("vote_count", {
         descending: true,
         compare: (a, b) => new Date(a) - new Date(b),
       });
@@ -92,11 +92,15 @@ describe("GET /api/reviews", () => {
         body: { reviews },
       } = await request(app)
         .get("/api/reviews")
-        .query({ sort_by: "votes", order: "asc", category: "social deduction" })
+        .query({
+          sort_by: "vote_count",
+          order: "asc",
+          category: "social deduction",
+        })
         .expect(200);
 
       expect(reviews).toHaveLength(11);
-      expect(reviews).toBeSortedBy("votes", {
+      expect(reviews).toBeSortedBy("vote_count", {
         descending: false,
         compare: (a, b) => new Date(a) - new Date(b),
       });
@@ -164,7 +168,7 @@ describe("GET /api/reviews/:review_id", () => {
       review_body: "Farmyard fun!",
       category: "euro game",
       created_at: "2021-01-18T10:00:20.514Z",
-      votes: 1,
+      vote_count: "1",
       comment_count: "0",
     });
   });
@@ -188,11 +192,11 @@ describe("GET /api/reviews/:review_id", () => {
   });
 });
 
-describe("PATCH /api/reviews/:review_id", () => {
-  test("status: 202, in/decrements votes column for the given review_id by the value of inc_votes, responds with updated review", async () => {
+describe("POST /api/reviews/:review_id", () => {
+  test("status: 202, in/decrements votes column for the given review_id by +1 or -1, responds with updated review", async () => {
     const { body } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votes: -1 })
+      .post("/api/reviews/2/votes")
+      .send({ username: "mallionaire", inc_votes: -1 })
       .expect(200);
 
     expect(body.review).toEqual({
@@ -205,15 +209,15 @@ describe("PATCH /api/reviews/:review_id", () => {
       review_body: "Fiddly fun for all the family",
       category: "dexterity",
       created_at: "2021-01-18T10:01:41.251Z",
-      votes: 4,
+      vote_count: "3",
       comment_count: "3",
     });
   });
 
   test("status: 404, responds with error if a review with the given id does not exist", async () => {
     const { body } = await request(app)
-      .patch("/api/reviews/14")
-      .send({ inc_votes: 1 })
+      .post("/api/reviews/14/votes")
+      .send({ username: "mallionaire", inc_votes: 1 })
       .expect(404);
 
     expect(body).toEqual({
@@ -222,7 +226,9 @@ describe("PATCH /api/reviews/:review_id", () => {
   });
 
   test("status: 400, responds with error if no body sent", async () => {
-    const { body } = await request(app).patch("/api/reviews/1").expect(400);
+    const { body } = await request(app)
+      .post("/api/reviews/1/votes")
+      .expect(400);
 
     expect(body).toEqual({
       msg: "Please provide inc_votes in the body of your request",
@@ -231,8 +237,8 @@ describe("PATCH /api/reviews/:review_id", () => {
 
   test("status: 400, responds with error if inc_votes is not a number", async () => {
     const { body } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votes: "some text" })
+      .post("/api/reviews/2/votes")
+      .send({ username: "mallionaire", inc_votes: "some text" })
       .expect(400);
 
     expect(body).toEqual({

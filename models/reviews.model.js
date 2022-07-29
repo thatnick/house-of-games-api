@@ -8,7 +8,10 @@ exports.selectReviews = async (
   category
 ) => {
   try {
-    const table = "reviews";
+    let table = "";
+    if (sort_by !== "vote_count" && sort_by !== "comment_count") {
+      table = "reviews.";
+    }
     let whereClause;
     if (category) {
       whereClause = format("WHERE reviews.category = %L", category);
@@ -16,12 +19,13 @@ exports.selectReviews = async (
 
     const reviewsQuery = format(
       `
-      SELECT reviews.*, COUNT(comments.review_id) AS comment_count
+      SELECT
+        reviews.*, 
+        (SELECT COUNT(votes.review_id) FROM votes WHERE votes.review_id = reviews.review_id) AS vote_count, 
+        (SELECT COUNT(comments.review_id) FROM comments WHERE comments.review_id = reviews.review_id) AS comment_count
       FROM reviews
-      LEFT JOIN comments ON reviews.review_id = comments.review_id
       %s
-      GROUP BY reviews.review_id
-      ORDER BY %I.%I %s
+      ORDER BY %s%I %s
       `,
       whereClause,
       table,
@@ -38,18 +42,20 @@ exports.selectReviews = async (
 
 exports.selectReviewById = async (review_id) => {
   try {
-    const { rows } = await pool.query(
+    const {
+      rows: [review],
+    } = await pool.query(
       `
-      SELECT reviews.*, COUNT(comments.review_id) AS comment_count
+      SELECT
+        reviews.*, 
+        (SELECT COUNT(votes.review_id) FROM votes WHERE votes.review_id = reviews.review_id) AS vote_count, 
+        (SELECT COUNT(comments.review_id) FROM comments WHERE comments.review_id = reviews.review_id) AS comment_count
       FROM reviews
-      LEFT JOIN comments ON reviews.review_id = comments.review_id
       WHERE reviews.review_id = $1
-      GROUP BY reviews.review_id
       `,
       [review_id]
     );
 
-    const [review] = rows;
     if (review) return { review };
     return resourceError("review", "review_id", review_id);
   } catch (err) {
@@ -57,28 +63,41 @@ exports.selectReviewById = async (review_id) => {
   }
 };
 
-exports.updateReviewById = async (review_id, inc_votes) => {
+exports.updateReviewById = async (username, review_id, inc_votes) => {
   try {
-    const { rows } = await pool.query(
-      `
-      UPDATE reviews
-      SET votes = reviews.votes + $1
-      FROM (
-        SELECT COUNT(comments.review_id) AS comment_count
-        FROM reviews
-        LEFT JOIN comments ON reviews.review_id = comments.review_id
-        WHERE reviews.review_id = $2
-      ) review
-      WHERE reviews.review_id = $2
-      RETURNING *
+    if (inc_votes >= 1) {
+      await pool.query(
+        `
+      INSERT INTO votes ( username, review_id ) VALUES ($1, $2)
       `,
-      [inc_votes, review_id]
+        [username, review_id]
+      );
+    } else if (inc_votes <= -1) {
+      await pool.query(
+        `
+        DELETE FROM votes WHERE username = $1 AND review_id = $2
+      `,
+        [username, review_id]
+      );
+    }
+    const {
+      rows: [review],
+    } = await pool.query(
+      `
+      SELECT
+         reviews.*, 
+         (SELECT COUNT(votes.review_id) FROM votes WHERE votes.review_id = reviews.review_id) AS vote_count, 
+         (SELECT COUNT(comments.review_id) FROM comments WHERE comments.review_id = reviews.review_id) AS comment_count
+       FROM reviews
+       WHERE reviews.review_id = $1;
+      `,
+      [review_id]
     );
-
-    const [review] = rows;
     if (review) return { review };
     return resourceError("review", "review_id", review_id);
   } catch (err) {
-    return dbError(err, "review", "number of votes", inc_votes);
+    if (err.detail.includes("reviews")) {
+      return dbError(err, "review", "review_id", review_id);
+    }
   }
 };

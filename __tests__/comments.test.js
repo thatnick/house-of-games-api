@@ -17,7 +17,6 @@ describe("GET /api/reviews/:review_id/comments", () => {
     comments.forEach((comment) => {
       expect(comment).toEqual({
         comment_id: expect.any(Number),
-        votes: expect.any(Number),
         created_at: expect.any(String),
         author: expect.any(String),
         body: expect.any(String),
@@ -66,7 +65,6 @@ describe("POST /api/reviews/:review_id/comments", () => {
 
     expect(comment).toEqual({
       comment_id: 7,
-      votes: 0,
       created_at: expect.any(String),
       author: "mallionaire",
       body: "I am a comment",
