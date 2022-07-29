@@ -150,9 +150,11 @@ describe("GET /api/reviews", () => {
 
 describe("GET /api/reviews/:review_id", () => {
   test("status: 200, responds with the review with the given id", async () => {
-    const { body } = await request(app).get("/api/reviews/1").expect(200);
+    const {
+      body: { review },
+    } = await request(app).get("/api/reviews/1").expect(200);
 
-    expect(body.review).toEqual({
+    expect(review).toEqual({
       review_id: 1,
       title: "Agricola",
       designer: "Uwe Rosenberg",
