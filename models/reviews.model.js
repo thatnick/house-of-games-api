@@ -101,3 +101,18 @@ exports.updateReviewById = async (username, review_id, inc_votes) => {
     }
   }
 };
+
+exports.selectVotesByReviewIdAndUsername = async (review_id, username) => {
+  const {
+    rows: [voted],
+  } = await pool.query(
+    `
+    SELECT review_id
+    FROM votes
+    WHERE review_id = $1 AND username = $2
+    `,
+    [review_id, username]
+  );
+  console.log(voted);
+  return voted ? true : false;
+};

@@ -2,6 +2,7 @@ const {
   selectReviews,
   selectReviewById,
   updateReviewById,
+  selectVotesByReviewIdAndUsername,
 } = require("../models/reviews.model");
 
 exports.getReviews = async (req, res, next) => {
@@ -55,4 +56,10 @@ exports.postVotesByReviewId = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.getVotesByReviewIdAndUsername = async (req, res) => {
+  const { review_id, username } = req.params;
+
+  res.send(await selectVotesByReviewIdAndUsername(review_id, username));
 };
